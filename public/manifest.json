@@ -1,0 +1,26 @@
+{
+  "name": "سوريا عمل - Syria Work",
+  "short_name": "سوريا  عمل",
+  "description": "منصة توظيف إلكترونية تهدف إلى ربط الباحثين عن عمل في سوريا مع أصحاب العمل، مما يسهل عملية التوظيف ويعزز فرص العمل في السوق السورية.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "./syria_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./syria_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

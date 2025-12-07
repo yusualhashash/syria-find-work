@@ -1,0 +1,150 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { getBlacksmiths, deleteBlacksmith } from "@/lib/blacksmiths/blacksmiths-actions"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Edit, Trash2, MapPin, Phone, User, Cake, GraduationCap, Home, NotebookText } from "lucide-react"
+import Link from "next/link"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import type { Blacksmith } from "@/app/blacksmiths/blacksmith-types"
+
+export default function BlacksmithsList() {
+    const [blacksmiths, setBlacksmiths] = useState<Blacksmith[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        loadBlacksmiths()
+    }, [])
+
+    const loadBlacksmiths = async () => {
+        try {
+            const data = await getBlacksmiths()
+            setBlacksmiths(data)
+        } catch (error) {
+            console.error("Error loading blacksmiths:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleDelete = async (id: string) => {
+        try {
+            await deleteBlacksmith(id)
+            setBlacksmiths(blacksmiths.filter((t) => t.id !== id))
+        } catch (error) {
+            console.error("Error deleting blacksmith:", error)
+            alert("حدث خطأ أثناء حذف الحداد")
+        }
+    }
+
+    if (loading) {
+        return <div className="text-center py-8 text-gray-600">جاري التحميل...</div>
+    }
+
+    if (blacksmiths.length === 0) {
+        return <div className="text-center py-12 text-gray-600">لا يوجد حدادين مضافين بعد</div>
+    }
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {blacksmiths.map((blacksmith) => (
+                <Card key={blacksmith.id} className="overflow-hidden rounded-lg shadow-md bg-white text-gray-900">
+                    <CardContent className="p-4 sm:p-6 space-y-4">
+                        <div className="flex items-center justify-end gap-4 mb-4">
+                            <div className="flex flex-col text-right grow">
+                                <h3 className="text-xl sm:text-2xl font-bold">{blacksmith.name} {blacksmith.surname}</h3>
+                                <div className="flex items-center flex-row-reverse justify-end gap-2 text-gray-600 text-sm mt-1">
+                                    <span>{blacksmith.gender === "male" ? "ذكر" : "أنثى"}</span>
+                                    <User className="w-4 h-4" />
+                                    <span>{blacksmith.age} سنة</span>
+                                    <Cake className="w-4 h-4" />
+                                </div>
+                                <Badge variant="secondary" className="mt-2 w-fit gap-1 text-xs bg-gray-200 text-gray-800 flex-row-reverse">
+                                    <span>خبرة {blacksmith.experience_years} سنوات</span>
+                                    <GraduationCap className="w-3 h-3" />
+                                </Badge>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 text-sm sm:text-base text-gray-700 text-right">
+                            {blacksmith.city && (
+                                <div className="flex items-center flex-row-reverse justify-end gap-2">
+                                    <span>{blacksmith.city}</span>
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                            )}
+                            {blacksmith.address && (
+                                <div className="flex items-center flex-row-reverse justify-end gap-2">
+                                    <span>{blacksmith.address}</span>
+                                    <Home className="w-4 h-4" />
+                                </div>
+                            )}
+                            {blacksmith.whatsapp_number && (
+                                <div className="flex items-center flex-row-reverse justify-end gap-2">
+                                    <span dir="ltr">{blacksmith.whatsapp_number}</span>
+                                    <Phone className="w-4 h-4" />
+                                </div>
+                            )}
+                            {blacksmith.notes && (
+                                <div className="flex items-center flex-row-reverse justify-end gap-2">
+                                    <p className="text-gray-600">{blacksmith.notes}</p>
+                                    <NotebookText className="w-4 h-4" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" className="flex-1 gap-2 text-sm sm:text-base bg-red-600 hover:bg-red-700 text-white">
+                                        <Trash2 className="w-4 h-4" />
+                                        حذف
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent dir="rtl" className="bg-white">
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            سيتم حذف الحداد "{blacksmith.name} {blacksmith.surname}" نهائياً ولا يمكن التراجع عن هذا الإجراء.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter className="flex flex-row gap-3 justify-end">
+                                        <AlertDialogAction
+                                            onClick={() => handleDelete(blacksmith.id)}
+                                            className="flex-1 bg-red-600 hover:bg-red-700 text-white text-base py-3"
+                                        >
+                                            حذف
+                                        </AlertDialogAction>
+                                        <AlertDialogCancel
+                                            className="flex-1 bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 text-base py-3"
+                                        >
+                                            إلغاء
+                                        </AlertDialogCancel>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                            <Button variant="outline" className="flex-1 gap-2 text-sm sm:text-base bg-white text-gray-900 border border-gray-300 hover:bg-gray-100" asChild>
+                                <Link href={`/admin/blacksmiths/edit/${blacksmith.id}`}>
+                                    <Edit className="w-4 h-4" />
+                                    تعديل
+                                </Link>
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    )
+}
